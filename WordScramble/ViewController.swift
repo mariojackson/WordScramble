@@ -26,6 +26,12 @@ class ViewController: UITableViewController {
         if allWords.isEmpty {
             allWords = ["silkworm"]
         }
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .add,
+            target: self,
+            action: #selector(promptForAnswer)
+        )
     
         startGame()
     }
@@ -35,6 +41,32 @@ class ViewController: UITableViewController {
         usedWords.removeAll(keepingCapacity: true)
         tableView.reloadData()
     }
+    
+    func submit(_ answer: String) {
+        
+    }
+    
+    @objc func promptForAnswer() {
+        let alertController = UIAlertController(
+            title: "Enter answer",
+            message: nil,
+            preferredStyle: .alert
+        )
+        alertController.addTextField()
+        
+        let submitAction = UIAlertAction(title: "Submit", style: .default) { [weak self, weak alertController] action in
+            guard let answer = alertController?.textFields?[0].text else {
+                return
+            }
+            
+            self?.submit(answer)
+        }
+        
+        alertController.addAction(submitAction)
+        present(alertController, animated: true)
+    }
+    
+    // Mark - Method Overrides
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return usedWords.count
