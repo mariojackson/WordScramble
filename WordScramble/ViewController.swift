@@ -10,6 +10,10 @@ import UIKit
 class ViewController: UITableViewController {
     var allWords = [String]()
     var usedWords = [String]()
+    
+    private var errorTitle: String = ""
+    private var errorMessage: String = ""
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,29 +47,80 @@ class ViewController: UITableViewController {
     }
     
     func submit(_ answer: String) {
-        let lowerCasedAnswer = answer.lowercased()
-        
-        if isPossible(word: lowerCasedAnswer) &&
-            isOriginal(word: lowerCasedAnswer) &&
-            isReal(word: lowerCasedAnswer) {
-            
-            usedWords.insert(answer, at: 0)
-            
-            let indexPath = IndexPath(row: 0, section: 0)
-            tableView.insertRows(at: [indexPath], with: .automatic)
+        if !isWordValid(word: answer) {
+            showError()
+            return
         }
+        
+        usedWords.insert(answer, at: 0)
+        let indexPath = IndexPath(row: 0, section: 0)
+        tableView.insertRows(at: [indexPath], with: .automatic)
     }
     
     func isPossible(word: String) -> Bool {
-        return true
+        guard var tempWord = title?.lowercased() else {
+            return false
+        }
+            
+        for letter in word {
+            if let position = tempWord.firstIndex(of: letter) {
+                tempWord.remove(at: position)
+                return true
+            }
+        }
+        
+        return false
     }
     
     func isOriginal(word: String) -> Bool {
-       return true
+        return !usedWords.contains(word)
     }
     
     func isReal(word: String) -> Bool {
-        return true
+        if word.utf16.count <= 1 {
+            return false
+        }
+        
+        let checker = UITextChecker()
+        let range = NSRange(location: 0, length: word.utf16.count)
+        let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
+        
+        return misspelledRange.location == NSNotFound
+    }
+    
+    func isWordValid(word: String) -> Bool {
+        let lowerCasedAnswer = word.lowercased()
+        var valid = true
+        
+        if !isPossible(word: lowerCasedAnswer) {
+            guard let title = title?.lowercased() else {
+                return false
+            }
+            
+            errorTitle = "Word not possible"
+            errorMessage = "Your can't spell that word from \(title)"
+            valid = false
+        }
+        
+        if valid && !isOriginal(word: lowerCasedAnswer) {
+            errorTitle = "Word used already"
+            errorMessage = "Let your creativity flow more!"
+            valid = false
+        }
+        
+        if valid && !isReal(word: lowerCasedAnswer) {
+            errorTitle = "Word not reconized"
+            errorMessage = "You can't just make them up, you know!"
+            valid = false
+        }
+        
+        return valid
+    }
+    
+    func showError() {
+        let alertController = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alertController, animated: true)
     }
     
     @objc func promptForAnswer() {
