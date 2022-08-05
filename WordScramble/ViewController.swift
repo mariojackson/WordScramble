@@ -36,11 +36,17 @@ class ViewController: UITableViewController {
             target: self,
             action: #selector(promptForAnswer)
         )
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .refresh,
+            target: self,
+            action: #selector(startGame)
+        )
     
         startGame()
     }
     
-    func startGame() {
+    @objc func startGame() {
         title = allWords.randomElement()
         usedWords.removeAll(keepingCapacity: true)
         tableView.reloadData()
