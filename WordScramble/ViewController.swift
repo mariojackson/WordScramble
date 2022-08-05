@@ -65,11 +65,12 @@ class ViewController: UITableViewController {
         for letter in word {
             if let position = tempWord.firstIndex(of: letter) {
                 tempWord.remove(at: position)
-                return true
+            } else {
+                return false
             }
         }
         
-        return false
+        return true
     }
     
     func isOriginal(word: String) -> Bool {
@@ -93,12 +94,8 @@ class ViewController: UITableViewController {
         var valid = true
         
         if !isPossible(word: lowerCasedAnswer) {
-            guard let title = title?.lowercased() else {
-                return false
-            }
-            
             errorTitle = "Word not possible"
-            errorMessage = "Your can't spell that word from \(title)"
+            errorMessage = "Your can't spell that word from \(title ?? "invalid word given")"
             valid = false
         }
         
